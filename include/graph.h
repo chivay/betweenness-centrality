@@ -27,6 +27,7 @@ class Graph {
     std::unordered_map<T, Vertex*> vertices_;
 
     Vertex* get_vertex(T a);
+    Vertex* get_or_insert(T a);
 
 public:
     void connect(T a, T b);
