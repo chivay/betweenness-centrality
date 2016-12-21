@@ -40,3 +40,10 @@ void Graph<T>::connect(T a, T b)
 
     a_ptr->add_neighbor(b_ptr);
 }
+
+template<typename T>
+Graph<T>::~Graph()
+{
+    for (auto v : vertices_)
+        delete v.second;
+}

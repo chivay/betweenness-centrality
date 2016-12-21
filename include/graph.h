@@ -31,6 +31,8 @@ class Graph {
 public:
     void connect(T a, T b);
     bool edge_exists(T a, T b);
+
+    ~Graph();
 };
 
 template class Graph<int>;
