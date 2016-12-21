@@ -3,10 +3,12 @@ project(brandes_algorithm)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 include_directories(./include)
 
-set(SOURCE_FILES ./src/main.cc)
+set(SOURCE_FILES ./src/main.cc
+                 ./src/graph.cc)
 
 add_executable(brandes ${SOURCE_FILES})
 
