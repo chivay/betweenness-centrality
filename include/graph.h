@@ -6,13 +6,21 @@
 
 template<typename T>
 class Graph {
-    
+
     struct Vertex {
-        T id;
-        std::unordered_set<Vertex *> adjacent;
+        T id_;
+        std::unordered_set<Vertex*> adjacent_;
+
+        Vertex(T id) {
+           id_ = id;
+        }
 
         bool has_neighbor(Vertex *v) {
-            return adjacent.find(v) != adjacent.end();
+            return adjacent_.find(v) != adjacent_.end();
+        }
+
+        void add_neighbor(Vertex* v) {
+            adjacent_.insert(v);
         }
     };
 

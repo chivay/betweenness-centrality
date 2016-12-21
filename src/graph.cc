@@ -25,5 +25,18 @@ bool Graph<T>::edge_exists(T a, T b)
 template<typename T>
 void Graph<T>::connect(T a, T b)
 {
+    Vertex* a_ptr = get_vertex(a);
+    Vertex* b_ptr = get_vertex(b);
 
+    if (a_ptr == nullptr) {
+        a_ptr = new Vertex(a);
+        vertices_.insert({a, a_ptr});
+    }
+
+    if (b_ptr == nullptr) {
+        b_ptr = new Vertex(b);
+        vertices_.insert({b, b_ptr});
+    }
+
+    a_ptr->add_neighbor(b_ptr);
 }
