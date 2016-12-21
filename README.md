@@ -1,1 +1,1 @@
-# betweenness-centrality
+Betweenness centrality
