@@ -12,7 +12,7 @@ template <typename T> class Brandes {
     using fType = double;
 
     Graph<T> graph_;
-    std::unordered_map<std::atomic<T>, fType> BC;
+    std::unordered_map<T, std::atomic<fType> > BC;
 
     void process(T vertex_id)
     {
