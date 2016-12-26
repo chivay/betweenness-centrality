@@ -8,7 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 include_directories(./include)
 
 set(SOURCE_FILES ./src/main.cc
-                 ./src/graph.cc)
+                 ./src/graph.cc
+                 ./src/brandes.cc)
 
 add_executable(brandes ${SOURCE_FILES})
 
