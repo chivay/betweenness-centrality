@@ -23,6 +23,7 @@ typename Graph<T>::Vertex* Graph<T>::get_or_insert(T a)
     if (a_ptr == nullptr) {
         a_ptr = new Vertex(a);
         vertices_.insert({a, a_ptr});
+        vertex_ids.insert(a);
     }
 
     return a_ptr;
@@ -49,6 +50,12 @@ void Graph<T>::connect(T a, T b)
     Vertex* b_ptr = get_or_insert(b);
 
     a_ptr->add_neighbor(b_ptr);
+}
+
+template<typename T>
+const std::unordered_set<T>& Graph<T>::get_vertex_ids()
+{
+    return vertex_ids;
 }
 
 template<typename T>

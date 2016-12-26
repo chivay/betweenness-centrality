@@ -1,11 +1,12 @@
 #include <iostream>
 #include "graph.h"
 #include "utils.h"
+#include "brandes.h"
 
 int main(int argc, char * argv[]) {
 
-    if (argc < 3) {
-        std::cerr << "Za mało argumentów!" << std::endl;
+    if (argc != 4) {
+        std::cerr << "Niepoprawne argumenty!" << std::endl;
         return -1;
     }
     std::ifstream in_file;
@@ -13,4 +14,7 @@ int main(int argc, char * argv[]) {
 
     Graph<int> g;
     loadGraph(in_file, g);
+
+    Brandes<int> brandes(g);
+    brandes.run(1);
 }

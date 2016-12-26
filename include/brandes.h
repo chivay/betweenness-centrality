@@ -6,27 +6,31 @@
 #include <queue>
 #include <stack>
 #include <vector>
+#include <mutex>
 
 template <typename T> class Brandes {
 
     using fType = double;
 
+    std::mutex bc_mutex;
     Graph<T> graph_;
-    std::unordered_map<T, std::atomic<fType> > BC;
+    std::unordered_map<T, fType> BC;
 
     void process(T vertex_id)
     {
         std::stack<T> S;
         std::unordered_map<T, std::vector<T> > P;
-        std::unordered_map<T, fType> sigma;
-        std::unordered_map<T, fType> d;
+        std::unordered_map<T, int> sigma;
+        std::unordered_map<T, int> d;
         std::unordered_map<T, fType> delta;
+        std::unordered_map<T, fType> BC_local;
 
         for (T w : graph_.get_vertex_ids()) {
             P[w] = std::vector<T>();
             sigma[w] = 0;
             d[w] = -1;
             delta[w] = 0;
+            BC_local[w] = 0;
         }
 
         sigma[vertex_id] = 1;
@@ -36,7 +40,7 @@ template <typename T> class Brandes {
         Q.push(vertex_id);
 
         while (!Q.empty()) {
-            T v = Q.top();
+            T v = Q.front();
             Q.pop();
             S.push(v);
 
@@ -53,14 +57,19 @@ template <typename T> class Brandes {
         }
 
         while (!S.empty()) {
-            T w = S.pop();
+            T w = S.top(); S.pop();
 
             for (T v : P[w]) {
                 delta[v] += (sigma[v] / sigma[w]) * (1 + delta[w]);
             }
 
             if (w != vertex_id)
-                BC[w] += delta[w];
+                BC_local[w] += delta[w];
+        }
+
+        std::lock_guard<std::mutex> guard(bc_mutex);
+        for (auto it : BC_local) {
+            BC[it.first] += it.second;
         }
     }
 
@@ -72,6 +81,12 @@ public:
             BC[v] = 0;
         }
     }
+
+    void run(int thread_num) {
+        for (auto v : graph_.get_vertex_ids()) {
+            process(v);
+        }
+    } 
 };
 
 #endif
