@@ -40,4 +40,5 @@ public:
     }
 };
 
+template class Brandes<int>;
 #endif
