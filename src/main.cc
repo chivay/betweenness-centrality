@@ -1,19 +1,14 @@
 #include <iostream>
 #include <string>
+#include "brandes.h"
 #include "graph.h"
 #include "utils.h"
-#include "brandes.h"
 
-#ifdef DNDEBUG
-const bool debug = false;
-#else
-const bool debug = true;
-#endif
-
-int main(int argc, char * argv[]) {
-
+int main(int argc, char* argv[])
+{
     if (argc != 4) {
-        std::cerr << "[ERROR] " << "Invalid parameters!" << std::endl;
+        std::cerr << "[ERROR] "
+                  << "Invalid parameters!" << std::endl;
         return -1;
     }
 
@@ -26,20 +21,26 @@ int main(int argc, char * argv[]) {
     out_file.open(argv[3]);
 
     if (!in_file.good()) {
-        std::cerr << "[ERROR] " << "Error while opening input file" << std::endl;
+        std::cerr << "[ERROR] "
+                  << "Error while opening input file" << std::endl;
         return -1;
     }
 
     if (!out_file.good()) {
-        std::cerr << "[ERROR] " << "Error while opening output file" << std::endl;
+        std::cerr << "[ERROR] "
+                  << "Error while opening output file" << std::endl;
         return -1;
     }
 
     Graph<int> g;
     loadGraph(in_file, g);
+    in_file.close();
 
     Brandes<int> brandes(g);
     brandes.run(threads);
 
-    brandes.dump_output();
+    for (auto p : brandes.get_result_vector()) {
+        out_file << p.first << " " << p.second << std::endl;
+    }
+    out_file.close();
 }
