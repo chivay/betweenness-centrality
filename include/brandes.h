@@ -21,11 +21,11 @@ public:
     }
 
     void run(size_t thread_num);
-    std::vector<std::pair<T, fType>> get_result_vector();
+    std::vector<std::pair<T, fType>> get_result_vector() const;
 
 private:
     void process(T vertex_id, std::unordered_map<T, fType>*);
-    void run_worker(std::vector<T> &jobs, std::atomic<int> &idx);
+    void run_worker(const std::vector<T> &jobs, std::atomic<int> *idx);
 
     std::mutex bc_mutex_;
     Graph<T> &graph_;

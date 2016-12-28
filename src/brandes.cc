@@ -61,7 +61,7 @@ void Brandes<T>::process(T vertex_id, std::unordered_map<T, fType> *BC_local)
 }
 
 template<typename T>
-void Brandes<T>::run_worker(std::vector<T> &jobs, std::atomic<int> &idx) {
+void Brandes<T>::run_worker(const std::vector<T> &jobs, std::atomic<int> *idx) {
     std::unordered_map<T, fType> BC_local;
 
     for (T w : graph_.get_vertex_ids()) {
@@ -69,7 +69,7 @@ void Brandes<T>::run_worker(std::vector<T> &jobs, std::atomic<int> &idx) {
     }
 
     while(true) {
-        int my_index = idx--;
+        int my_index = (*idx)--;
 
         if (my_index < 0)
             break;
@@ -98,7 +98,7 @@ void Brandes<T>::run(size_t thread_num) {
 
     // run threads
     for (size_t i = 0; i < thread_num; i++)
-        threads.push_back(std::thread( [this, &jobs, &index] { run_worker(jobs, index); }));
+        threads.push_back(std::thread( [this, &jobs, &index] { run_worker(jobs, &index); }));
 
     // wait for them to finish
     for (auto& thread : threads)
@@ -107,7 +107,7 @@ void Brandes<T>::run(size_t thread_num) {
 
 template<typename T>
 std::vector<std::pair<T, typename Brandes<T>::fType>>
-Brandes<T>::get_result_vector() {
+Brandes<T>::get_result_vector() const {
     std::vector<std::pair<T, fType>> results;
     results.reserve(BC_.size());
 
