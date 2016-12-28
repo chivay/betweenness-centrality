@@ -1,10 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <iostream>
 #include <fstream>
-#include "graph.h"
 
+#include "graph.h"
 
 template<typename T>
 void loadGraph(std::ifstream &file, Graph<T> &graph) {

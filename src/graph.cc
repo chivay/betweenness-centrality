@@ -45,7 +45,7 @@ void Graph<T>::connect(T a, T b)
 }
 
 template<typename T>
-const std::unordered_set<T>& Graph<T>::get_vertex_ids()
+inline const std::unordered_set<T>& Graph<T>::get_vertex_ids() const
 {
     return vertex_ids;
 }
