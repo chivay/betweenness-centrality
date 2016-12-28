@@ -24,7 +24,7 @@ public:
     std::vector<std::pair<T, fType>> get_result_vector();
 
 private:
-    void process(T vertex_id);
+    void process(T vertex_id, std::unordered_map<T, fType>*);
     void run_worker(std::vector<T> &jobs, std::atomic<int> &idx);
 
     std::mutex bc_mutex_;

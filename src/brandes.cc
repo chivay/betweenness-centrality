@@ -6,21 +6,19 @@
 #include <thread>
 
 template<typename T>
-void Brandes<T>::process(T vertex_id)
+void Brandes<T>::process(T vertex_id, std::unordered_map<T, fType> *BC_local)
 {
     std::stack<T> S;
     std::unordered_map<T, std::vector<T> > P;
     std::unordered_map<T, int> sigma;
     std::unordered_map<T, int> d;
     std::unordered_map<T, fType> delta;
-    std::unordered_map<T, fType> BC_local;
 
     for (T w : graph_.get_vertex_ids()) {
         P[w] = std::vector<T>();
         sigma[w] = 0;
         d[w] = -1;
         delta[w] = 0;
-        BC_local[w] = 0;
     }
 
     sigma[vertex_id] = 1;
@@ -56,25 +54,32 @@ void Brandes<T>::process(T vertex_id)
         }
 
         if (v != vertex_id) {
-            BC_local[v] += delta[v];
+            (*BC_local)[v] += delta[v];
         }
     }
 
-    std::lock_guard<std::mutex> guard(bc_mutex_);
-    for (auto it : BC_local) {
-        BC_[it.first] += it.second;
-    }
 }
 
 template<typename T>
 void Brandes<T>::run_worker(std::vector<T> &jobs, std::atomic<int> &idx) {
+    std::unordered_map<T, fType> BC_local;
+
+    for (T w : graph_.get_vertex_ids()) {
+        BC_local[w] = 0;
+    }
+
     while(true) {
         int my_index = idx--;
 
         if (my_index < 0)
             break;
 
-        process(jobs[my_index]);
+        process(jobs[my_index], &BC_local);
+    }
+
+    std::lock_guard<std::mutex> guard(bc_mutex_);
+    for (auto it : BC_local) {
+        BC_[it.first] += it.second;
     }
 }
 
