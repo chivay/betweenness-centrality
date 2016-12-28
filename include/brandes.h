@@ -21,13 +21,7 @@ public:
     }
 
     void run(size_t thread_num);
-
-    void dump_output() {
-        for (auto t : BC_) {
-            std::cout << "BC[" << t.first << "] = " << t.second << std::endl;
-        }
-    }
-    std::vector< std::pair<T, fType> > get_result_vector();
+    std::vector<std::pair<T, fType>> get_result_vector();
 
 private:
     void process(T vertex_id);
