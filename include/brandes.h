@@ -1,9 +1,9 @@
 #ifndef BRANDES_H
 #define BRANDES_H
 
-#include <vector>
-#include <mutex>
 #include <atomic>
+#include <mutex>
+#include <vector>
 
 #include "graph.h"
 
