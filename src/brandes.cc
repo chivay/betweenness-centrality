@@ -100,10 +100,12 @@ void Brandes<T>::run(const size_t thread_num) {
     index.store(jobs.size() - 1);
 
     // run threads
-    for (size_t i = 0; i < thread_num; i++)
+    for (size_t i = 0; i < thread_num-1; i++)
         threads.emplace_back(std::thread( [this, &jobs, &index] { run_worker(jobs, &index); }));
 
-    // wait for them to finish
+    run_worker(jobs, &index);
+
+    // wait for others to finish
     for (auto& thread : threads)
         thread.join();
 }
