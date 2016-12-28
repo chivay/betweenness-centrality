@@ -1,11 +1,5 @@
 #include "graph.h"
 
-#ifdef DNDEBUG
-const bool debug = false;
-#else
-const bool debug = true;
-#endif
-
 template<typename T>
 typename Graph<T>::Vertex* Graph<T>::get_vertex(T a)
 {
@@ -44,8 +38,6 @@ bool Graph<T>::edge_exists(T a, T b)
 template<typename T>
 void Graph<T>::connect(T a, T b)
 {
-    if(debug)
-        std::cerr << "[DEBUG] Connecting " << a << " -> " << b << std::endl;
     Vertex* a_ptr = get_or_insert(a);
     Vertex* b_ptr = get_or_insert(b);
 
