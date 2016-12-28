@@ -40,7 +40,7 @@ void Brandes<T>::process(T vertex_id, std::unordered_map<T, fType> *BC_local)
 
             if (d[w] == d[v] + 1) {
                 sigma[w] += sigma[v];
-                P[w].push_back(v);
+                P[w].emplace_back(v);
             }
         }
     }
@@ -77,14 +77,17 @@ void Brandes<T>::run_worker(const std::vector<T> &jobs, std::atomic<int> *idx) {
         process(jobs[my_index], &BC_local);
     }
 
-    std::lock_guard<std::mutex> guard(bc_mutex_);
-    for (auto it : BC_local) {
-        BC_[it.first] += it.second;
+    // Synchronized section
+    {
+        std::lock_guard<std::mutex> guard(bc_mutex_);
+        for (auto it : BC_local) {
+            BC_[it.first] += it.second;
+        }
     }
 }
 
 template<typename T>
-void Brandes<T>::run(size_t thread_num) {
+void Brandes<T>::run(const size_t thread_num) {
     std::vector<std::thread> threads;
 
     std::vector<T> jobs;
@@ -98,7 +101,7 @@ void Brandes<T>::run(size_t thread_num) {
 
     // run threads
     for (size_t i = 0; i < thread_num; i++)
-        threads.push_back(std::thread( [this, &jobs, &index] { run_worker(jobs, &index); }));
+        threads.emplace_back(std::thread( [this, &jobs, &index] { run_worker(jobs, &index); }));
 
     // wait for them to finish
     for (auto& thread : threads)
@@ -106,13 +109,13 @@ void Brandes<T>::run(size_t thread_num) {
 }
 
 template<typename T>
-std::vector<std::pair<T, typename Brandes<T>::fType>>
+const std::vector<std::pair<T, typename Brandes<T>::fType>>
 Brandes<T>::get_result_vector() const {
     std::vector<std::pair<T, fType>> results;
     results.reserve(BC_.size());
 
     for (auto it : BC_) {
-        results.push_back( std::make_pair(it.first, it.second));
+        results.emplace_back( std::make_pair(it.first, it.second));
     }
 
     sort(begin(results), end(results));

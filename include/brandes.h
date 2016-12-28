@@ -21,7 +21,7 @@ public:
     }
 
     void run(size_t thread_num);
-    std::vector<std::pair<T, fType>> get_result_vector() const;
+    const std::vector<std::pair<T, fType>> get_result_vector() const;
 
 private:
     void process(T vertex_id, std::unordered_map<T, fType>*);
