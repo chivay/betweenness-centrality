@@ -60,9 +60,9 @@ void Brandes<T>::process(T vertex_id)
         }
     }
 
-    std::lock_guard<std::mutex> guard(bc_mutex);
+    std::lock_guard<std::mutex> guard(bc_mutex_);
     for (auto it : BC_local) {
-        BC[it.first] += it.second;
+        BC_[it.first] += it.second;
     }
 }
 
@@ -104,9 +104,9 @@ template<typename T>
 std::vector<std::pair<T, typename Brandes<T>::fType>>
 Brandes<T>::get_result_vector() {
     std::vector<std::pair<T, fType>> results;
-    results.reserve(BC.size());
+    results.reserve(BC_.size());
 
-    for (auto it : BC) {
+    for (auto it : BC_) {
         results.push_back( std::make_pair(it.first, it.second));
     }
 
