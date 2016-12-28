@@ -33,7 +33,6 @@ class Graph {
 
 public:
     void connect(T a, T b);
-    bool edge_exists(T a, T b);
     const std::unordered_set<T>& get_vertex_ids() const;
 
     inline const std::unordered_set<T>& get_neighbors(T vertex_id) {
