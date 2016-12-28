@@ -1,5 +1,9 @@
 #include "brandes.h"
 
+#include <queue>
+#include <stack>
+#include <algorithm>
+#include <thread>
 
 template<typename T>
 void Brandes<T>::process(T vertex_id)
@@ -35,6 +39,7 @@ void Brandes<T>::process(T vertex_id)
                 Q.push(w);
                 d[w] = d[v] + 1;
             }
+
             if (d[w] == d[v] + 1) {
                 sigma[w] += sigma[v];
                 P[w].push_back(v);
@@ -61,3 +66,50 @@ void Brandes<T>::process(T vertex_id)
     }
 }
 
+template<typename T>
+void Brandes<T>::run_worker(std::vector<T> &jobs, std::atomic<int> &idx) {
+    while(true) {
+        int my_index = idx--;
+
+        if (my_index < 0)
+            break;
+
+        process(jobs[my_index]);
+    }
+}
+
+template<typename T>
+void Brandes<T>::run(size_t thread_num) {
+    std::vector<std::thread> threads;
+
+    std::vector<T> jobs;
+    std::atomic<int> index;
+
+    // add jobs
+    for (auto id : graph_.get_vertex_ids())
+        jobs.emplace_back(id);
+
+    index.store(jobs.size() - 1);
+
+    // run threads
+    for (size_t i = 0; i < thread_num; i++)
+        threads.push_back(std::thread( [this, &jobs, &index] { run_worker(jobs, index); }));
+
+    // wait for them to finish
+    for (auto& thread : threads)
+        thread.join();
+}
+
+template<typename T>
+std::vector<std::pair<T, typename Brandes<T>::fType>>
+Brandes<T>::get_result_vector() {
+    std::vector<std::pair<T, fType>> results;
+    results.reserve(BC.size());
+
+    for (auto it : BC) {
+        results.push_back( std::make_pair(it.first, it.second));
+    }
+
+    sort(begin(results), end(results));
+    return results;
+}
