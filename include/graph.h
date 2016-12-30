@@ -7,6 +7,17 @@
 template<typename T>
 class Graph {
 
+public:
+    void connect(const T &a, const T &b);
+    const std::unordered_set<T>& get_vertex_ids() const;
+
+    inline const std::unordered_set<T>& get_neighbors(const T &vertex_id) const {
+        return vertices_.at(vertex_id)->adjacent_ids_;
+    }
+
+    ~Graph();
+
+private:
     struct Vertex {
         T id_;
         std::unordered_set<Vertex*> adjacent_;
@@ -28,18 +39,8 @@ class Graph {
     std::unordered_map<T, Vertex*> vertices_;
     std::unordered_set<T> vertex_ids;
 
-    Vertex* get_vertex(T a);
-    Vertex* get_or_insert(T a);
-
-public:
-    void connect(T a, T b);
-    const std::unordered_set<T>& get_vertex_ids() const;
-
-    inline const std::unordered_set<T>& get_neighbors(T vertex_id) {
-        return vertices_[vertex_id]->adjacent_ids_;
-    }
-
-    ~Graph();
+    Vertex* get_vertex(const T &a) const;
+    Vertex* get_or_insert(const T &a);
 };
 
 template class Graph<int>;

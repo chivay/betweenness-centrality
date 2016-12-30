@@ -6,7 +6,7 @@
 #include <thread>
 
 template<typename T>
-void Brandes<T>::process(T vertex_id, std::unordered_map<T, fType> *BC_local)
+void Brandes<T>::process(const T &vertex_id, std::unordered_map<T, fType> *BC_local)
 {
     std::stack<T> S;
     std::unordered_map<T, std::vector<T> > P;
@@ -32,7 +32,7 @@ void Brandes<T>::process(T vertex_id, std::unordered_map<T, fType> *BC_local)
         Q.pop();
         S.push(v);
 
-        for (auto w : graph_.get_neighbors(v)) {
+        for (const auto &w : graph_.get_neighbors(v)) {
             if (d[w] < 0) {
                 Q.push(w);
                 d[w] = d[v] + 1;

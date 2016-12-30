@@ -9,10 +9,11 @@
 
 template <typename T>
 class Brandes {
+
 public:
     using fType = double;
 
-    Brandes(Graph<T>& graph)
+    Brandes(const Graph<T>& graph)
         : graph_(graph)
     {
         for (auto v : graph_.get_vertex_ids()) {
@@ -24,11 +25,11 @@ public:
     const std::vector<std::pair<T, fType>> get_result_vector() const;
 
 private:
-    void process(T vertex_id, std::unordered_map<T, fType>*);
+    void process(const T &vertex_id, std::unordered_map<T, fType>* BC_local);
     void run_worker(const std::vector<T> &jobs, std::atomic<int> *idx);
 
     std::mutex bc_mutex_;
-    Graph<T> &graph_;
+    const Graph<T> &graph_;
     std::unordered_map<T, fType> BC_;
 };
 
