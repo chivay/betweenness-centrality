@@ -22,9 +22,10 @@ private:
         T id_;
         std::unordered_set<Vertex*> adjacent_;
         std::unordered_set<T> adjacent_ids_;
+
         Vertex(const T &id) : id_(id) {}
 
-        bool has_neighbor(Vertex *v) {
+        bool has_neighbor(Vertex *v) const {
             return adjacent_.find(v) != adjacent_.end();
         }
 
