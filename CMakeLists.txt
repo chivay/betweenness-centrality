@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(brandes_algorithm)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -O3 -pthread")
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -O3 -pthread -march=native")
 
 include_directories(./include)
 
