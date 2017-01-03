@@ -117,7 +117,8 @@ Brandes<T>::get_result_vector() const {
     results.reserve(BC_.size());
 
     for (auto it : BC_) {
-        results.emplace_back( std::make_pair(it.first, it.second));
+        if(graph_.get_neighbors(it.first).size() > 0)
+            results.emplace_back( std::make_pair(it.first, it.second));
     }
 
     sort(begin(results), end(results));
