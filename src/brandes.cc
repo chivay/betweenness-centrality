@@ -1,5 +1,6 @@
 #include "brandes.h"
 
+#include <iostream>
 #include <queue>
 #include <stack>
 #include <algorithm>
@@ -74,6 +75,8 @@ void Brandes<T>::run_worker(const std::vector<T> &jobs, std::atomic<int> *idx) {
         if (my_index < 0)
             break;
 
+        if (my_index % 100 == 0)
+            std::cerr << "Processing " << my_index << std::endl;
         process(jobs[my_index], &BC_local);
     }
 
@@ -118,7 +121,7 @@ Brandes<T>::get_result_vector() const {
 
     for (auto it : BC_) {
         if(graph_.get_neighbors(it.first).size() > 0)
-            results.emplace_back( std::make_pair(it.first, it.second));
+            results.emplace_back(std::make_pair(it.first, it.second));
     }
 
     sort(begin(results), end(results));
