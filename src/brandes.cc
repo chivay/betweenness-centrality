@@ -16,7 +16,7 @@ void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
     std::vector<int> d;
     std::vector<fType> delta;
 
-    for (size_t w = 0; w < graph_.get_max_alias()) {
+    for (size_t w = 0; w < graph_.get_vertex_num(); w++) {
         P[w] = std::vector<size_t>();
         sigma[w] = 0;
         d[w] = -1;
@@ -30,11 +30,11 @@ void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
     Q.push(vertex_id);
 
     while (!Q.empty()) {
-        T v = Q.front();
+        size_t v = Q.front();
         Q.pop();
         S.push(v);
 
-        for (const auto &w : graph_.get_neighbors(v)) {
+        for (const auto &w : graph_.get_neighbor_aliases(v)) {
             if (d[w] < 0) {
                 Q.push(w);
                 d[w] = d[v] + 1;
@@ -48,7 +48,7 @@ void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
     }
 
     while (!S.empty()) {
-        T v = S.top(); S.pop();
+        size_t v = S.top(); S.pop();
 
         for (T p : P[v]) {
             double result = (fType(sigma[p]) / sigma[v]) * (1.0 + delta[v]);
@@ -63,12 +63,10 @@ void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
 }
 
 template<typename T>
-void Brandes<T>::run_worker(const std::vector<T> &jobs, std::atomic<int> *idx) {
-    std::unordered_map<T, fType> BC_local;
+void Brandes<T>::run_worker(std::atomic<size_t> *idx) {
+    std::vector<fType> BC_local;
 
-    for (T w : graph_.get_vertex_ids()) {
-        BC_local[w] = 0;
-    }
+    std::fill(begin(BC_local), end(BC_local), 0.0);
 
     while(true) {
         int my_index = (*idx)--;
@@ -78,14 +76,14 @@ void Brandes<T>::run_worker(const std::vector<T> &jobs, std::atomic<int> *idx) {
 
         if (my_index % 100 == 0)
             std::cerr << "Processing " << my_index << std::endl;
-        process(jobs[my_index], &BC_local);
+        process(my_index, &BC_local);
     }
 
     // Synchronized section
     {
         std::lock_guard<std::mutex> guard(bc_mutex_);
-        for (auto it : BC_local) {
-            BC_[it.first] += it.second;
+        for (int i = 0; i < BC_local.size(); i++) {
+            BC_[i] += BC_local[i];
         }
     }
 }
@@ -94,20 +92,16 @@ template<typename T>
 void Brandes<T>::run(const size_t thread_num) {
     std::vector<std::thread> threads;
 
-    std::vector<T> jobs;
-    std::atomic<int> index;
+    std::atomic<size_t> index;
 
-    // add jobs
-    for (auto id : graph_.get_vertex_ids())
-        jobs.emplace_back(id);
-
-    index.store(jobs.size() - 1);
+    index.store(graph_.get_vertex_num() - 1);
 
     // run threads
     for (size_t i = 0; i < thread_num-1; i++)
-        threads.emplace_back(std::thread( [this, &jobs, &index] { run_worker(jobs, &index); }));
+        threads.emplace_back(std::thread( [this, &index] { run_worker(&index); }));
 
-    run_worker(jobs, &index);
+    // start working
+    run_worker(&index);
 
     // wait for others to finish
     for (auto& thread : threads)
@@ -116,13 +110,13 @@ void Brandes<T>::run(const size_t thread_num) {
 
 template<typename T>
 const std::vector<std::pair<T, typename Brandes<T>::fType>>
-Brandes<T>::get_result_vector() const {
+Brandes<T>::get_result_vector() {
     std::vector<std::pair<T, fType>> results;
     results.reserve(BC_.size());
 
-    for (auto it : BC_) {
-        if(graph_.get_neighbors(it.first).size() > 0)
-            results.emplace_back(std::make_pair(it.first, it.second));
+    for (size_t i = 0; i < BC_.size(); i++) {
+        if(graph_.get_neighbor_aliases(i).size() > 0)
+            results.emplace_back(std::make_pair(graph_.get_id_from_alias(i), BC_[i]));
     }
 
     sort(begin(results), end(results));

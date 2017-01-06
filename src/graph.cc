@@ -1,40 +1,32 @@
 #include "graph.h"
 
 template<typename T>
-typename Graph<T>::Vertex* Graph<T>::get_vertex(const T &a) const
+size_t Graph<T>::get_or_insert(const T &a)
 {
-    auto it = vertices_.find(a);
-    if (it == vertices_.end())
-        return nullptr;
-    else
-        return it->second;
+    // if no such key
+    if (alias_id_.find(a) == alias_id_.end()) {
+        // inswet new node with this id
+        vertices_.emplace_back(Vertex(a));
+
+        // mark last index as new mapping
+        alias_id_[a] = vertices_.size() - 1;
+    }
+
+    return alias_id_[a];
 }
 
 template<typename T>
-typename Graph<T>::Vertex* Graph<T>::get_or_insert(const T &a)
-{
-    Vertex* a_ptr = get_vertex(a);
-    if (a_ptr == nullptr) {
-        a_ptr = new Vertex(a);
-        vertices_.insert({a, a_ptr});
-        vertex_ids.insert(a);
-    }
-
-    return a_ptr;
+typename Graph<T>::Vertex& Graph<T>::get_vertex_by_alias(const size_t &id) {
+    return vertices_[id];
 }
-
 
 template<typename T>
 void Graph<T>::connect(const T &a, const T &b)
 {
-    Vertex* a_ptr = get_or_insert(a);
-    Vertex* b_ptr = get_or_insert(b);
+    size_t a_alias = get_or_insert(a);
+    size_t b_alias = get_or_insert(b);
 
-    a_ptr->add_neighbor(b_ptr);
-}
+    Vertex& a_ptr = vertices_[a_alias];
 
-template<typename T>
-inline const std::unordered_set<T>& Graph<T>::get_vertex_ids() const
-{
-    return vertex_ids;
+    a_ptr.add_neighbor(b_alias);
 }

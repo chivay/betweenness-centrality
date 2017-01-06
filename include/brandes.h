@@ -16,21 +16,20 @@ public:
     Brandes(const Graph<T>& graph)
         : graph_(graph)
     {
-        for (auto v : graph_.get_vertex_ids()) {
-            BC_[v] = 0;
-        }
+        BC_.resize(graph_.get_vertex_num());
+        std::fill(begin(BC_), end(BC_), 0.0);
     }
 
     void run(size_t thread_num);
-    const std::vector<std::pair<T, fType>> get_result_vector() const;
+    const std::vector<std::pair<T, fType>> get_result_vector();
 
 private:
-    void process(const T &vertex_id, std::unordered_map<T, fType>* BC_local);
-    void run_worker(const std::vector<T> &jobs, std::atomic<int> *idx);
+    void process(const size_t &vertex_id, std::vector<fType>* BC_local);
+    void run_worker(std::atomic<size_t> *idx);
 
     std::mutex bc_mutex_;
     const Graph<T> &graph_;
-    std::unordered_map<T, fType> BC_;
+    std::vector<fType> BC_;
 };
 
 template class Brandes<int>;
