@@ -10,14 +10,14 @@
 template<typename T>
 void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
 {
+    size_t vec_size = BC_local->size();
     std::stack<size_t> S;
-    std::vector<std::vector<size_t>> P;
-    std::vector<int> sigma;
-    std::vector<int> d;
-    std::vector<fType> delta;
+    std::vector<std::vector<size_t>> P(vec_size);
+    std::vector<int> sigma(vec_size);
+    std::vector<int> d(vec_size);
+    std::vector<fType> delta(vec_size);
 
     for (size_t w = 0; w < graph_.get_vertex_num(); w++) {
-        P[w] = std::vector<size_t>();
         sigma[w] = 0;
         d[w] = -1;
         delta[w] = 0;
@@ -50,7 +50,7 @@ void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
     while (!S.empty()) {
         size_t v = S.top(); S.pop();
 
-        for (T p : P[v]) {
+        for (size_t p : P[v]) {
             double result = (fType(sigma[p]) / sigma[v]) * (1.0 + delta[v]);
             delta[p] += result;
         }
@@ -64,7 +64,7 @@ void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
 
 template<typename T>
 void Brandes<T>::run_worker(std::atomic<size_t> *idx) {
-    std::vector<fType> BC_local;
+    std::vector<fType> BC_local(graph_.get_vertex_num());
 
     std::fill(begin(BC_local), end(BC_local), 0.0);
 
@@ -74,13 +74,12 @@ void Brandes<T>::run_worker(std::atomic<size_t> *idx) {
         if (my_index < 0)
             break;
 
-        if (my_index % 100 == 0)
-            std::cerr << "Processing " << my_index << std::endl;
         process(my_index, &BC_local);
     }
 
     // Synchronized section
     {
+        std::cerr << "Scalam.." << std::endl;
         std::lock_guard<std::mutex> guard(bc_mutex_);
         for (int i = 0; i < BC_local.size(); i++) {
             BC_[i] += BC_local[i];
