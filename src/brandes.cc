@@ -5,18 +5,19 @@
 #include <stack>
 #include <algorithm>
 #include <thread>
+#include <vector>
 
 template<typename T>
-void Brandes<T>::process(const T &vertex_id, std::unordered_map<T, fType> *BC_local)
+void Brandes<T>::process(const size_t &vertex_id, std::vector<fType> *BC_local)
 {
-    std::stack<T> S;
-    std::unordered_map<T, std::vector<T> > P;
-    std::unordered_map<T, int> sigma;
-    std::unordered_map<T, int> d;
-    std::unordered_map<T, fType> delta;
+    std::stack<size_t> S;
+    std::vector<std::vector<size_t>> P;
+    std::vector<int> sigma;
+    std::vector<int> d;
+    std::vector<fType> delta;
 
-    for (T w : graph_.get_vertex_ids()) {
-        P[w] = std::vector<T>();
+    for (size_t w = 0; w < graph_.get_max_alias()) {
+        P[w] = std::vector<size_t>();
         sigma[w] = 0;
         d[w] = -1;
         delta[w] = 0;
@@ -25,7 +26,7 @@ void Brandes<T>::process(const T &vertex_id, std::unordered_map<T, fType> *BC_lo
     sigma[vertex_id] = 1;
     d[vertex_id] = 0;
 
-    std::queue<T> Q;
+    std::queue<size_t> Q;
     Q.push(vertex_id);
 
     while (!Q.empty()) {

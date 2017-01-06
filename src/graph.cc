@@ -38,10 +38,3 @@ inline const std::unordered_set<T>& Graph<T>::get_vertex_ids() const
 {
     return vertex_ids;
 }
-
-template<typename T>
-Graph<T>::~Graph()
-{
-    for (auto v : vertices_)
-        delete v.second;
-}
