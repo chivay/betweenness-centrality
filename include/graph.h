@@ -38,6 +38,9 @@ private:
     std::unordered_map<T, Vertex*> vertices_;
     std::unordered_set<T> vertex_ids;
 
+    std::unordered_map<T, int> alias_id;
+    std::vector<int> reverse_mapping;
+
     Vertex* get_vertex(const T &a) const;
     Vertex* get_or_insert(const T &a);
 };
