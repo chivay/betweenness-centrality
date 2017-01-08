@@ -1,12 +1,16 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 #include "brandes.h"
 #include "graph.h"
 #include "utils.h"
 
+using namespace std::chrono;
+
 int main(int argc, char* argv[])
 {
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
     if (argc != 4) {
         std::cerr << "Invalid parameters!" << std::endl
                   << "Usage: " << argv[0] << " [number of threads] [input file] [output file]" << std::endl;
@@ -50,4 +54,7 @@ int main(int argc, char* argv[])
         out_file << p.first << " " << p.second << std::endl;
     }
     out_file.close();
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    
+    std::cout << duration_cast<microseconds>( t2 - t1 ).count() << std::endl;
 }
